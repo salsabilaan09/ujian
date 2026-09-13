@@ -77,6 +77,6 @@ class PeminjamController extends Controller
             ->latest()
             ->get();
 
-        return view('peminjam.riwayat', compact('peminjamans'));
+        return view('peminjam.riwayat', compact('peminjaman'));
     }
 }

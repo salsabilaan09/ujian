@@ -21,6 +21,24 @@
         </div>
     </nav>
 
+    <!-- Header & Form Search -->
+        <div class="p-5 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <h3 class="text-lg font-bold text-gray-800">Mencari Katalog Alat</h3>
+            <form action="{{ route('peminjam.katalog') }}" method="GET" class="flex w-full md:w-80">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama alat..."
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-r-lg transition">
+                    Cari
+                </button>
+                @if(request('search'))
+                    <a href="{{ route('peminjam.katalog') }}"
+                        class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-2 text-sm rounded-lg flex items-center transition">
+                        Reset
+                    </a>
+                @endif
+            </form>
+        </div>
+
     <div class="container">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -30,7 +48,7 @@
         @endif
 
         <h3 class="mb-3">Katalog Alat Tersedia</h3>
-
+        
         <form action="{{ route('peminjam.peminjaman.ajukan') }}" method="POST">
             @csrf
             <div class="card shadow-sm mb-4">
