@@ -38,19 +38,20 @@ class PetugasController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
     public function indexPengembalian()
     {
-        // Mengambil data yang statusnya 'dipinjam' atau 'selesai'
+        // Mengambil data yang statusnya 'dipinjam' atau 'dikembalikan'
         $pengembalian = Peminjaman::with(['user', 'detailPinjam.alat'])
-            ->whereIn('status', ['dipinjam', 'selesai'])
+            ->whereIn('status', ['dipinjam', 'dikembalikan'])
             ->latest()
             ->get();
 
-        // Jika belum buat file view khusus pengembalian, return view yang ada dulu agar tidak error:
         return view('petugas.peminjaman.index', [
             'peminjaman' => $pengembalian
         ]);
     }
+
     public function prosesPengembalian(Request $request, $peminjamanId)
     {
         $request->validate([
@@ -60,7 +61,8 @@ class PetugasController extends Controller
 
         DB::beginTransaction();
         try {
-            $peminjaman = Peminjaman::with('detailPinjams')->findOrFail($peminjamanId);
+            // FIX 1: Menggunakan 'detailPinjam' (tanpa akhiran 's')
+            $peminjaman = Peminjaman::with('detailPinjam')->findOrFail($peminjamanId);
 
             // Simpan data pengembalian
             Pengembalian::create([
@@ -71,8 +73,8 @@ class PetugasController extends Controller
                 'petugas_id' => auth()->id(),
             ]);
 
-            // Update status peminjaman jadi selesai
-            $peminjaman->update(['status' => 'selesai']);
+            // FIX 2: Mengubah status dari 'selesai' menjadi 'dikembalikan'
+            $peminjaman->update(['status' => 'dikembalikan']);
 
             // Kembalikan stok alat ke inventaris
             foreach ($peminjaman->detailPinjam as $detail) {
@@ -88,12 +90,12 @@ class PetugasController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
     public function tolakPeminjaman($id)
     {
         try {
             $peminjaman = Peminjaman::findOrFail($id);
             
-            //pastikan statusnya memang diajukan
             if ($peminjaman->status == 'diajukan') {
                 $peminjaman->delete();
                 return redirect()->back()->with('success', 'Pengajuan peminjaman berhasil ditolak');
@@ -104,13 +106,13 @@ class PetugasController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
     public function indexLaporan()
     {
         $laporan = Peminjaman::with(['user', 'detailPinjam.alat'])
             ->latest()
             ->get();
 
-        // Arahkan ke view laporan yang baru dibuat
         return view('petugas.laporan.index', [
             'peminjaman' => $laporan
         ]);

@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Riwayat Peminjaman - Dashboard Peminjam')
+@section('header-title', 'Riwayat Peminjaman')
+
 @section('content')
     <h1>Riwayat Peminjaman</h1>
     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
@@ -23,11 +26,11 @@
             <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
                 
                 <div class="p-5">
-                    <p class="px-4 py-1.5"><strong>Peminjaman ID:</strong> {{ $item->id }}</p>
-                    <p class="px-4 py-1.5"><strong>Tanggal Pinjam:</strong> {{ $item->tgl_pinjam }}</p>
-                    <p class="px-4 py-1.5"><strong>Rencana Tanggal Kembali:</strong> {{ $item->tgl_kembali_plan }}</p>
-                    <p class="px-4 py-1.5"><strong>Status:</strong> {{ $item->status }}</p>
-                    <p class="px-4 py-1.5"><strong>Alat yang Dipinjam:</strong></p>
+                    <p class="px-6 py-3"><strong>Peminjaman ID:</strong> {{ $item->id }}</p>
+                    <p class="px-6 py-3"><strong>Tanggal Pinjam:</strong> {{ $item->tgl_pinjam }}</p>
+                    <p class="px-6 py-3"><strong>Rencana Tanggal Kembali:</strong> {{ $item->tgl_kembali_plan }}</p>
+                    <p class="px-6 py-3"><strong>Status:</strong> {{ $item->status }}</p>
+                    <p class="px-6 py-3"><strong>Alat yang Dipinjam:</strong></p>
                     <ul class="list-disc list-inside">
                         @foreach($item->detailPinjam as $detail)
                             <li>{{ $detail->alat->nama_alat ?? 'Alat' }} ({{ $detail->jumlah }} pcs)</li>
