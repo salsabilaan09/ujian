@@ -17,6 +17,27 @@
             </button>
         </div>
 
+        <form action="{{ route('petugas.laporan.index') }}" method="GET" class="p-5 border-b border-gray-200 bg-white flex flex-col md:flex-row md:items-end gap-4">
+            <div>
+                <label for="start_date" class="block mb-1 text-sm font-semibold text-gray-700">Dari tanggal</label>
+                <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
+                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label for="end_date" class="block mb-1 text-sm font-semibold text-gray-700">Sampai tanggal</label>
+                <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
+                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-lg transition">
+                Tampilkan
+            </button>
+            @if($startDate || $endDate)
+                <a href="{{ route('petugas.laporan.index') }}" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition">
+                    Reset
+                </a>
+            @endif
+        </form>
+
         <!-- Tabel Laporan -->
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-600">

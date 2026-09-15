@@ -111,5 +111,10 @@
                 </tbody>
             </table>
         </div>
+        @if($peminjaman->hasPages())
+            <div class="px-6 py-4 border-t border-gray-200">
+                {{ $peminjaman->links() }}
+            </div>
+        @endif
     </div>
 @endsection

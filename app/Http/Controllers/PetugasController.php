@@ -13,7 +13,7 @@ class PetugasController extends Controller
     // Menampilkan daftar pengajuan peminjaman dari siswa/peminjam
     public function indexPeminjaman()
     {
-        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])->latest()->get();
+        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])->latest()->paginate(5);
         return view('petugas.peminjaman.index', compact('peminjaman'));
     }
 
@@ -45,7 +45,7 @@ class PetugasController extends Controller
         $pengembalian = Peminjaman::with(['user', 'detailPinjam.alat'])
             ->whereIn('status', ['dipinjam', 'dikembalikan'])
             ->latest()
-            ->get();
+            ->paginate(5);
 
         return view('petugas.peminjaman.index', [
             'peminjaman' => $pengembalian
@@ -107,14 +107,27 @@ class PetugasController extends Controller
         }
     }
 
-    public function indexLaporan()
+    public function indexLaporan(Request $request)
     {
+        $validated = $request->validate([
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+        ]);
+
         $laporan = Peminjaman::with(['user', 'detailPinjam.alat'])
+            ->when($validated['start_date'] ?? null, function ($query, $startDate) {
+                $query->whereDate('tgl_pinjam', '>=', $startDate);
+            })
+            ->when($validated['end_date'] ?? null, function ($query, $endDate) {
+                $query->whereDate('tgl_pinjam', '<=', $endDate);
+            })
             ->latest()
             ->get();
 
         return view('petugas.laporan.index', [
-            'peminjaman' => $laporan
+            'peminjaman' => $laporan,
+            'startDate' => $validated['start_date'] ?? null,
+            'endDate' => $validated['end_date'] ?? null,
         ]);
     }
 }
