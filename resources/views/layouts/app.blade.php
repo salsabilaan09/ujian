@@ -148,6 +148,17 @@
                             <span>Cetak Laporan</span>
                         </a>
                     @endif
+
+                    <!-- MENU KHUSUS PEMINJAM -->
+                    @if(auth()->user()->role === 'peminjam')
+                        <a href="{{ route('peminjam.riwayat') }}"
+                            class="group flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 hover:scale-105 active:scale-95 {{ request()->routeIs('peminjam.riwayat') ? 'bg-gray-800 text-white font-medium shadow' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                            <svg class="h-5 w-5 {{ request()->routeIs('peminjam.riwayat') ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-400' }} transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Riwayat Pinjam</span>
+                        </a>
+                    @endif
                 </nav>
             </div>
 
