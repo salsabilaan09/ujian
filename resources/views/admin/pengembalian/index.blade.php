@@ -179,7 +179,14 @@
                         {{-- Denda --}}
                         <td class="py-4 px-4">
 
-                            @if($perkiraanDenda > 0)
+                            @if($pinjam->pengembalian)
+                                <span class="font-bold text-slate-700 text-xs">
+                                    Rp {{ number_format($pinjam->pengembalian->denda, 0, ',', '.') }}
+                                </span>
+                                <div class="text-[11px] text-slate-400 mt-0.5">
+                                    {{ $pinjam->pengembalian->kondisi_kembali }}
+                                </div>
+                            @elseif($perkiraanDenda > 0)
 
                                 <span class="font-bold text-red-600 text-xs">
                                     Rp {{ number_format($perkiraanDenda, 0, ',', '.') }}
@@ -202,17 +209,9 @@
 
                         {{-- Aksi --}}
                         <td class="py-4 px-4 text-center">
-
-                            <form
-                                action="{{ route('admin.pengembalian.kembalikan', $pinjam->id) }}"
-                                method="POST"
-                                onsubmit="return confirm('Yakin alat ini sudah dikembalikan?')"
-                                class="inline-block"
-                            >
-                                @csrf
-                                @method('PUT')
-
-                                <!-- Tombol Kembalikan (Interaktif + Hover Scale) -->
+                            @if($pinjam->pengembalian)
+                                <span class="text-xs text-slate-500">Sudah diproses</span>
+                            @else
                                 <a href="{{ route('admin.pengembalian.create', $pinjam->id) }}"
                                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-sm shadow-indigo-600/25 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md hover:shadow-indigo-600/40 inline-flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,8 +219,7 @@
                                     </svg>
                                     Kembalikan
                                 </a>
-
-                            </form>
+                            @endif
 
                         </td>
 

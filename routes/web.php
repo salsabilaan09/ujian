@@ -72,6 +72,7 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->group(func
 
     // Pengembalian & Denda
     Route::get('/pengembalian', [PetugasController::class, 'indexPengembalian'])->name('petugas.pengembalian.index');
+    Route::get('/pengembalian/{id}/proses', [PetugasController::class, 'formPengembalian'])->name('petugas.pengembalian.form');
     Route::post('/pengembalian/{id}', [PetugasController::class, 'prosesPengembalian'])->name('petugas.pengembalian.proses');
 
     // Laporan (Tambahkan baris ini)

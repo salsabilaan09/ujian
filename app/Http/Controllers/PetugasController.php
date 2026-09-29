@@ -41,28 +41,58 @@ class PetugasController extends Controller
 
     public function indexPengembalian()
     {
-        // Mengambil data yang statusnya 'dipinjam' atau 'dikembalikan'
-        $pengembalian = Peminjaman::with(['user', 'detailPinjam.alat'])
-            ->whereIn('status', ['dipinjam', 'dikembalikan'])
+        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat', 'pengembalian'])
+            ->whereIn('status', ['dipinjam', 'telat'])
             ->latest()
             ->paginate(5);
 
-        return view('petugas.peminjaman.index', [
-            'peminjaman' => $pengembalian
-        ]);
+        foreach ($peminjaman as $pinjam) {
+            if ($pinjam->status === 'dipinjam' && now()->startOfDay()->gt($pinjam->tgl_kembali_plan)) {
+                $pinjam->update(['status' => 'telat']);
+            }
+        }
+
+        return view('petugas.pengembalian.index', compact('peminjaman'));
+    }
+
+    public function formPengembalian($id)
+    {
+        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])->findOrFail($id);
+
+        if ($peminjaman->pengembalian()->exists()) {
+            return redirect()->route('petugas.pengembalian.index')
+                ->with('error', 'Pengembalian untuk peminjaman ini sudah tercatat.');
+        }
+
+        if (!in_array($peminjaman->status, ['dipinjam', 'telat'], true)) {
+            return redirect()->route('petugas.pengembalian.index')
+                ->with('error', 'Peminjaman ini tidak dapat diproses sebagai pengembalian.');
+        }
+
+        return view('petugas.pengembalian.create', compact('peminjaman'));
     }
 
     public function prosesPengembalian(Request $request, $peminjamanId)
     {
         $request->validate([
-            'kondisi_kembali' => 'required|string',
-            'denda' => 'nullable|integer',
+            'kondisi_kembali' => 'required|string|in:Baik,Rusak Ringan,Rusak Berat,Hilang',
+            'denda' => 'required|integer|min:0',
         ]);
 
         DB::beginTransaction();
         try {
             // FIX 1: Menggunakan 'detailPinjam' (tanpa akhiran 's')
-            $peminjaman = Peminjaman::with('detailPinjam')->findOrFail($peminjamanId);
+            $peminjaman = Peminjaman::with('detailPinjam')->lockForUpdate()->findOrFail($peminjamanId);
+
+            if ($peminjaman->pengembalian()->exists()) {
+                DB::rollBack();
+                return redirect()->route('petugas.pengembalian.index')
+                    ->with('error', 'Pengembalian untuk peminjaman ini sudah tercatat.');
+            }
+
+            if (!in_array($peminjaman->status, ['dipinjam', 'telat'], true)) {
+                throw new \RuntimeException('Peminjaman ini tidak dapat diproses sebagai pengembalian.');
+            }
 
             // Simpan data pengembalian
             Pengembalian::create([

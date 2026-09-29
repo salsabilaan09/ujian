@@ -8,6 +8,7 @@ use App\Models\Kategori;
 use App\Models\User;
 use App\Models\Peminjaman;
 use App\Models\DetailPinjam;
+use App\Models\Pengembalian;
 use Illuminate\Support\Facades\DB;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
@@ -424,7 +425,7 @@ class AdminController extends Controller
     // 6. Menampilkan daftar pengembalian
     public function indexPengembalian()
     {
-        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])
+        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat', 'pengembalian'])
             ->whereIn('status', ['dipinjam', 'telat'])
             ->latest()
             ->get();
@@ -442,39 +443,46 @@ class AdminController extends Controller
     }
 
     // 7. Proses Pengembalian
-    public function kembalikan($id)
+    public function kembalikan(Request $request, $id)
     {
-        $peminjaman = Peminjaman::with('detailPinjam.alat')->findOrFail($id);
+        $request->validate([
+            'kondisi_kembali' => 'required|string|in:Baik,Rusak Ringan,Rusak Berat,Hilang',
+            'denda' => 'required|integer|min:0',
+        ]);
 
-        if (!in_array($peminjaman->status, ['dipinjam', 'telat'])) {
-            return back()->with('error', 'Peminjaman ini sudah dikembalikan.');
-        }
-
-        DB::beginTransaction();
         try {
-            $tanggalRencana = Carbon::parse($peminjaman->tgl_kembali_plan);
-            $tanggalKembali = Carbon::today();
+            DB::transaction(function () use ($request, $id) {
+                $peminjaman = Peminjaman::with('detailPinjam.alat')->lockForUpdate()->findOrFail($id);
 
-            $hariTerlambat = $tanggalKembali->gt($tanggalRencana) ? $tanggalRencana->diffInDays($tanggalKembali) : 0;
-            $denda = $hariTerlambat * 5000; 
-
-            foreach ($peminjaman->detailPinjam as $detail) {
-                if ($detail->alat) {
-                    $detail->alat->increment('stok', $detail->jumlah);
+                if ($peminjaman->pengembalian()->exists()) {
+                    throw new \RuntimeException('Pengembalian untuk peminjaman ini sudah tercatat.');
                 }
-            }
 
-            $peminjaman->update([
-                'status' => 'dikembalikan',
-                'denda'  => $denda,
-            ]);
+                if (!in_array($peminjaman->status, ['dipinjam', 'telat'], true)) {
+                    throw new \RuntimeException('Peminjaman ini tidak dapat diproses sebagai pengembalian.');
+                }
 
-            DB::commit();
+                Pengembalian::create([
+                    'peminjaman_id' => $peminjaman->id,
+                    'tgl_kembali' => now()->toDateString(),
+                    'kondisi_kembali' => $request->kondisi_kembali,
+                    'denda' => $request->denda,
+                    'petugas_id' => auth()->id(),
+                ]);
+
+                $peminjaman->update(['status' => 'dikembalikan']);
+
+                foreach ($peminjaman->detailPinjam as $detail) {
+                    if ($detail->alat) {
+                        $detail->alat->increment('stok', $detail->jumlah);
+                    }
+                }
+            });
+
             return redirect()->route('admin.pengembalian.index')
-                ->with('success', 'Pengembalian berhasil. Stok alat dikembalikan.');
+                ->with('success', 'Pengembalian berhasil dicatat. Kondisi, denda, status, dan stok telah diperbarui.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Pengembalian gagal: ' . $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -482,6 +490,11 @@ class AdminController extends Controller
     public function createPengembalian($id)
     {
         $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])->findOrFail($id);
+
+        if ($peminjaman->pengembalian()->exists()) {
+            return redirect()->route('admin.pengembalian.index')
+                ->with('error', 'Pengembalian untuk peminjaman ini sudah tercatat.');
+        }
 
         if (!in_array($peminjaman->status, ['dipinjam', 'telat'])) {
             return back()->with('error', 'Peminjaman ini sudah selesai dikembalikan.');
