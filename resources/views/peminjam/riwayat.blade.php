@@ -45,15 +45,8 @@
                                     @foreach($item->detailPinjam as $detail)
                                         <li>{{ $detail->alat->nama_alat ?? 'Alat' }} <span class="text-gray-500">({{ $detail->jumlah }} pcs)</span></li>
                                     @endforeach
-                                </ul>
-                                @if($item->status == 'dipinjam')
-                                    <a href="{{ route('peminjam.pengembalian', $item->id) }}" class="btn btn-sm btn-primary">
-                                        Kembalikan Alat
-                                    </a>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
+                                </ul>IIII
+                                GYVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV??????????????????????????????????????????????????????????????????????????????????????????????????????
                             <td class="border border-gray-200 px-4 py-3">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold
                                     @if($item->status == 'diajukan') bg-yellow-100 text-yellow-800

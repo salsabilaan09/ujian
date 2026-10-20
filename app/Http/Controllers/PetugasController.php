@@ -7,6 +7,7 @@ use App\Models\Pengembalian;
 use App\Models\Alat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PetugasController extends Controller
 {
@@ -19,24 +20,34 @@ class PetugasController extends Controller
 
     public function setujuiPeminjaman($id)
     {
-        DB::beginTransaction();
-        try {
-            $peminjaman = Peminjaman::with('detailPinjam')->findOrFail($id);
-            $peminjaman->update(['status' => 'dipinjam']);
+        DB::transaction(function () use ($id) {
+            $peminjaman = Peminjaman::with('detailPinjam')
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-            // Kurangi stok alat secara otomatis
-            foreach ($peminjaman->detailPinjam as $detail) {
-                $alat = Alat::findOrFail($detail->alat_id);
-                $alat->stok -= $detail->jumlah;
-                $alat->save();
+            if ($peminjaman->status !== 'diajukan') {
+                throw ValidationException::withMessages([
+                    'peminjaman' => 'Pengajuan ini sudah diproses sebelumnya.',
+                ]);
             }
 
-            DB::commit();
-            return redirect()->back()->with('success', 'Peminjaman disetujui dan stok alat dikurangi.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+            foreach ($peminjaman->detailPinjam as $detail) {
+                $alat = Alat::whereKey($detail->alat_id)->lockForUpdate()->firstOrFail();
+                if ($alat->stok < $detail->jumlah) {
+                    throw ValidationException::withMessages([
+                        'stok' => "Stok {$alat->nama_alat} tidak mencukupi untuk menyetujui pengajuan ini.",
+                    ]);
+                }
+            }
+
+            foreach ($peminjaman->detailPinjam as $detail) {
+                Alat::whereKey($detail->alat_id)->decrement('stok', $detail->jumlah);
+            }
+
+            $peminjaman->update(['status' => 'dipinjam']);
+        });
+
+        return redirect()->back()->with('success', 'Peminjaman disetujui dan stok alat dikurangi.');
     }
 
     public function indexPengembalian()
@@ -57,9 +68,9 @@ class PetugasController extends Controller
 
     public function formPengembalian($id)
     {
-        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])->findOrFail($id);
+        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat', 'pengembalian'])->findOrFail($id);
 
-        if ($peminjaman->pengembalian()->exists()) {
+        if ($peminjaman->pengembalian && $peminjaman->pengembalian->status !== 'diajukan') {
             return redirect()->route('petugas.pengembalian.index')
                 ->with('error', 'Pengembalian untuk peminjaman ini sudah tercatat.');
         }
@@ -79,46 +90,49 @@ class PetugasController extends Controller
             'denda' => 'required|integer|min:0',
         ]);
 
-        DB::beginTransaction();
-        try {
-            // FIX 1: Menggunakan 'detailPinjam' (tanpa akhiran 's')
+        DB::transaction(function () use ($request, $peminjamanId) {
             $peminjaman = Peminjaman::with('detailPinjam')->lockForUpdate()->findOrFail($peminjamanId);
+            $pengembalian = $peminjaman->pengembalian;
 
-            if ($peminjaman->pengembalian()->exists()) {
-                DB::rollBack();
-                return redirect()->route('petugas.pengembalian.index')
-                    ->with('error', 'Pengembalian untuk peminjaman ini sudah tercatat.');
+            if ($pengembalian && $pengembalian->status !== 'diajukan') {
+                throw ValidationException::withMessages([
+                    'pengembalian' => 'Pengembalian untuk peminjaman ini sudah diproses.',
+                ]);
             }
 
             if (!in_array($peminjaman->status, ['dipinjam', 'telat'], true)) {
-                throw new \RuntimeException('Peminjaman ini tidak dapat diproses sebagai pengembalian.');
+                throw ValidationException::withMessages([
+                    'peminjaman' => 'Peminjaman ini tidak dapat diproses sebagai pengembalian.',
+                ]);
             }
 
-            // Simpan data pengembalian
-            Pengembalian::create([
-                'peminjaman_id' => $peminjaman->id,
-                'tgl_kembali' => now(),
-                'kondisi_kembali' => $request->kondisi_kembali,
-                'denda' => $request->denda ?? 0,
-                'petugas_id' => auth()->id(),
-            ]);
+            if ($pengembalian) {
+                $pengembalian->update([
+                    'tgl_kembali' => now()->toDateString(),
+                    'kondisi_kembali' => $request->kondisi_kembali,
+                    'denda' => $request->denda,
+                    'petugas_id' => auth()->id(),
+                    'status' => 'diproses',
+                ]);
+            } else {
+                Pengembalian::create([
+                    'peminjaman_id' => $peminjaman->id,
+                    'tgl_kembali' => now()->toDateString(),
+                    'kondisi_kembali' => $request->kondisi_kembali,
+                    'denda' => $request->denda,
+                    'petugas_id' => auth()->id(),
+                    'status' => 'diproses',
+                ]);
+            }
 
-            // FIX 2: Mengubah status dari 'selesai' menjadi 'dikembalikan'
             $peminjaman->update(['status' => 'dikembalikan']);
 
-            // Kembalikan stok alat ke inventaris
             foreach ($peminjaman->detailPinjam as $detail) {
-                $alat = Alat::findOrFail($detail->alat_id);
-                $alat->stok += $detail->jumlah;
-                $alat->save();
+                Alat::whereKey($detail->alat_id)->increment('stok', $detail->jumlah);
             }
+        });
 
-            DB::commit();
-            return redirect()->back()->with('success', 'Pengembalian berhasil dicatat dan stok dipulihkan.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        return redirect()->back()->with('success', 'Pengembalian berhasil dicatat dan stok dipulihkan.');
     }
 
     public function tolakPeminjaman($id)

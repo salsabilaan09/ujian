@@ -81,11 +81,12 @@ Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->group(func
 
 //peminjam
 Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
-    // Katalog & Pengajuan
+    Route::get('/dashboard', [PeminjamController::class, 'index'])->name('dashboard');
     Route::get('/katalog', [PeminjamController::class, 'katalogAlat'])->name('katalog');
     Route::post('/peminjaman/ajukan', [PeminjamController::class, 'ajukanPeminjaman'])->name('peminjaman.ajukan');
     Route::get('/riwayat', [PeminjamController::class, 'riwayatPeminjaman'])->name('riwayat');
-    Route::get('/pengembalian/{id}', [PeminjamController::class, 'formPengembalian'])->name('peminjam.pengembalian');
+    Route::get('/pengembalian', [PeminjamController::class, 'indexPengembalian'])->name('pengembalian.index');
+    Route::post('/pengembalian/{id}/ajukan', [PeminjamController::class, 'ajukanPengembalian'])->name('pengembalian.ajukan');
 });
 
 // Route Tamu (Belum Login)

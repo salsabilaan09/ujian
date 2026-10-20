@@ -453,8 +453,9 @@ class AdminController extends Controller
         try {
             DB::transaction(function () use ($request, $id) {
                 $peminjaman = Peminjaman::with('detailPinjam.alat')->lockForUpdate()->findOrFail($id);
+                $pengembalian = $peminjaman->pengembalian;
 
-                if ($peminjaman->pengembalian()->exists()) {
+                if ($pengembalian && $pengembalian->status !== 'diajukan') {
                     throw new \RuntimeException('Pengembalian untuk peminjaman ini sudah tercatat.');
                 }
 
@@ -462,13 +463,20 @@ class AdminController extends Controller
                     throw new \RuntimeException('Peminjaman ini tidak dapat diproses sebagai pengembalian.');
                 }
 
-                Pengembalian::create([
-                    'peminjaman_id' => $peminjaman->id,
+                $dataPengembalian = [
                     'tgl_kembali' => now()->toDateString(),
                     'kondisi_kembali' => $request->kondisi_kembali,
                     'denda' => $request->denda,
                     'petugas_id' => auth()->id(),
-                ]);
+                    'status' => 'diproses',
+                ];
+                if ($pengembalian) {
+                    $pengembalian->update($dataPengembalian);
+                } else {
+                    Pengembalian::create(array_merge($dataPengembalian, [
+                        'peminjaman_id' => $peminjaman->id,
+                    ]));
+                }
 
                 $peminjaman->update(['status' => 'dikembalikan']);
 
@@ -489,9 +497,9 @@ class AdminController extends Controller
     // 8. Form Pengembalian
     public function createPengembalian($id)
     {
-        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat'])->findOrFail($id);
+        $peminjaman = Peminjaman::with(['user', 'detailPinjam.alat', 'pengembalian'])->findOrFail($id);
 
-        if ($peminjaman->pengembalian()->exists()) {
+        if ($peminjaman->pengembalian && $peminjaman->pengembalian->status !== 'diajukan') {
             return redirect()->route('admin.pengembalian.index')
                 ->with('error', 'Pengembalian untuk peminjaman ini sudah tercatat.');
         }

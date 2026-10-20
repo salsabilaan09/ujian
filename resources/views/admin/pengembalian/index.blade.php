@@ -209,7 +209,7 @@
 
                         {{-- Aksi --}}
                         <td class="py-4 px-4 text-center">
-                            @if($pinjam->pengembalian)
+                            @if($pinjam->pengembalian && $pinjam->pengembalian->status !== 'diajukan')
                                 <span class="text-xs text-slate-500">Sudah diproses</span>
                             @else
                                 <a href="{{ route('admin.pengembalian.create', $pinjam->id) }}"
@@ -217,7 +217,7 @@
                                     <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    Kembalikan
+                                    {{ $pinjam->pengembalian?->status === 'diajukan' ? 'Periksa Pengajuan' : 'Kembalikan' }}
                                 </a>
                             @endif
 

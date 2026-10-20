@@ -151,6 +151,13 @@
 
                     <!-- MENU KHUSUS PEMINJAM -->
                     @if(auth()->user()->role === 'peminjam')
+                        <a href="{{ route('peminjam.dashboard') }}"
+                            class="group flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 hover:scale-105 active:scale-95 {{ request()->routeIs('peminjam.dashboard') ? 'bg-gray-800 text-white font-medium shadow' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                            <svg class="h-5 w-5 {{ request()->routeIs('peminjam.dashboard') ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"></path>
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
                         <!-- Katalog Pinjaman -->
                         <a href="{{ route('peminjam.katalog') }}"
                             class="group flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 hover:scale-105 active:scale-95 {{ request()->routeIs('peminjam.katalog') ? 'bg-gray-800 text-white font-medium shadow' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
@@ -167,6 +174,13 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <span>Riwayat Pinjam</span>
+                        </a>
+                        <a href="{{ route('peminjam.pengembalian.index') }}"
+                            class="group flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 hover:scale-105 active:scale-95 {{ request()->routeIs('peminjam.pengembalian.*') ? 'bg-gray-800 text-white font-medium shadow' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                            <svg class="h-5 w-5 {{ request()->routeIs('peminjam.pengembalian.*') ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 1 0 2.34-5.66L4 8.67M4 4v4.67h4.67M12 8v4l2.5 1.5"></path>
+                            </svg>
+                            <span>Pengembalian Alat</span>
                         </a>
                     @endif
                 </nav>

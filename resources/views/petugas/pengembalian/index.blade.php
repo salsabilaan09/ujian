@@ -63,7 +63,9 @@
                                 <div class="text-xs text-slate-500">Rp 5.000 per hari terlambat</div>
                             </td>
                             <td class="py-4 px-4">
-                                @if($pinjam->pengembalian)
+                                @if($pinjam->pengembalian && $pinjam->pengembalian->status === 'diajukan')
+                                    <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">Menunggu Pemeriksaan</span>
+                                @elseif($pinjam->pengembalian)
                                     <span class="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-800">Pengembalian Tercatat</span>
                                 @elseif($pinjam->status === 'telat')
                                     <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800">Terlambat</span>
@@ -75,10 +77,12 @@
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-center">
-                                @if($pinjam->pengembalian)
+                                @if($pinjam->pengembalian && $pinjam->pengembalian->status !== 'diajukan')
                                     <span class="text-xs text-slate-500">Sudah diproses</span>
                                 @else
-                                    <a href="{{ route('petugas.pengembalian.form', $pinjam->id) }}" class="inline-flex whitespace-nowrap rounded-md bg-indigo-700 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-800">Proses Pengembalian</a>
+                                    <a href="{{ route('petugas.pengembalian.form', $pinjam->id) }}" class="inline-flex whitespace-nowrap rounded-md bg-indigo-700 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-800">
+                                        {{ $pinjam->pengembalian?->status === 'diajukan' ? 'Periksa Pengajuan' : 'Proses Pengembalian' }}
+                                    </a>
                                 @endif
                             </td>
                         </tr>
