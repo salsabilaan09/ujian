@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role.peminjam')->group(function () {
         Route::post('/peminjaman', [PeminjamanController::class, 'store']);
         Route::get('/riwayat-pinjam', [PeminjamanController::class, 'riwayat']);
+        Route::post('/pengembalian', [PengembalianController::class, 'store']);
         // Route untuk hak akses peminjam
     });
 });

@@ -59,16 +59,16 @@
                                 <span class="font-semibold {{ $hariTerlambat > 0 ? 'text-red-600' : 'text-slate-500' }}">{{ $hariTerlambat }} hari</span>
                             </td>
                             <td class="py-4 px-4">
-                                <span class="font-semibold {{ $estimasiDenda > 0 ? 'text-red-600' : 'text-emerald-600' }}">Rp {{ number_format($estimasiDenda, 0, ',', '.') }}</span>
+                                <span class="font-semibold {{ $estimasiDenda > 0 ? 'text-red-600' : 'text-indigo-600' }}">Rp {{ number_format($estimasiDenda, 0, ',', '.') }}</span>
                                 <div class="text-xs text-slate-500">Rp 5.000 per hari terlambat</div>
                             </td>
                             <td class="py-4 px-4">
                                 @if($pinjam->pengembalian)
-                                    <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">Pengembalian Tercatat</span>
+                                    <span class="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-800">Pengembalian Tercatat</span>
                                 @elseif($pinjam->status === 'telat')
                                     <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800">Terlambat</span>
                                 @else
-                                    <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800">Dipinjam</span>
+                                    <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800">Dipinjam</span>
                                 @endif
                                 @if($pinjam->pengembalian)
                                     <div class="mt-1 text-xs text-slate-600">{{ $pinjam->pengembalian->kondisi_kembali }} · Rp {{ number_format($pinjam->pengembalian->denda, 0, ',', '.') }}</div>
@@ -78,7 +78,7 @@
                                 @if($pinjam->pengembalian)
                                     <span class="text-xs text-slate-500">Sudah diproses</span>
                                 @else
-                                    <a href="{{ route('petugas.pengembalian.form', $pinjam->id) }}" class="inline-flex whitespace-nowrap rounded-md bg-emerald-700 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-800">Proses Pengembalian</a>
+                                    <a href="{{ route('petugas.pengembalian.form', $pinjam->id) }}" class="inline-flex whitespace-nowrap rounded-md bg-indigo-700 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-800">Proses Pengembalian</a>
                                 @endif
                             </td>
                         </tr>

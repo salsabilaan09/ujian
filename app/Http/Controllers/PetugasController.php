@@ -142,6 +142,7 @@ class PetugasController extends Controller
         $validated = $request->validate([
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'status' => ['nullable', 'string', 'in:diajukan,dipinjam,dikembalikan,telat'],
         ]);
 
         $laporan = Peminjaman::with(['user', 'detailPinjam.alat'])
@@ -151,6 +152,9 @@ class PetugasController extends Controller
             ->when($validated['end_date'] ?? null, function ($query, $endDate) {
                 $query->whereDate('tgl_pinjam', '<=', $endDate);
             })
+            ->when($validated['status'] ?? null, function ($query, $status) {
+                $query->where('status', $status);
+            })
             ->latest()
             ->get();
 
@@ -158,6 +162,7 @@ class PetugasController extends Controller
             'peminjaman' => $laporan,
             'startDate' => $validated['start_date'] ?? null,
             'endDate' => $validated['end_date'] ?? null,
+            'status' => $validated['status'] ?? null,
         ]);
     }
 }

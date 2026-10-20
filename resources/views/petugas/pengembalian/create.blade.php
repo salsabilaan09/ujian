@@ -89,7 +89,7 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label for="kondisi_kembali" class="mb-1 block text-sm font-semibold text-slate-700">Kondisi Alat Saat Dikembalikan</label>
-                    <select id="kondisi_kembali" name="kondisi_kembali" required class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700">
+                    <select id="kondisi_kembali" name="kondisi_kembali" required class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-700">
                         <option value="">Pilih kondisi</option>
                         @foreach(['Baik', 'Rusak Ringan', 'Rusak Berat', 'Hilang'] as $kondisi)
                             <option value="{{ $kondisi }}" @selected(old('kondisi_kembali') === $kondisi)>{{ $kondisi }}</option>
@@ -98,14 +98,14 @@
                 </div>
                 <div>
                     <label for="denda" class="mb-1 block text-sm font-semibold text-slate-700">Denda (Rp)</label>
-                    <input id="denda" name="denda" type="number" min="0" step="1" required value="{{ old('denda', $estimasiDenda) }}" class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-700">
+                    <input id="denda" name="denda" type="number" min="0" step="1" required value="{{ old('denda', $estimasiDenda) }}" class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-700">
                     <p class="mt-1 text-xs text-slate-500">Isi jumlah akhir berdasarkan keterlambatan dan kondisi alat.</p>
                 </div>
             </div>
 
             <div class="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-4">
                 <a href="{{ route('petugas.pengembalian.index') }}" class="rounded-md bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Batal</a>
-                <button type="submit" onclick="return confirm('Proses pengembalian dan simpan kondisi serta denda?')" class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">Konfirmasi Pengembalian</button>
+                <button type="submit" onclick="return confirm('Proses pengembalian dan simpan kondisi serta denda?')" class="rounded-md bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-800">Konfirmasi Pengembalian</button>
             </div>
         </form>
     </div>

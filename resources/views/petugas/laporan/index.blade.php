@@ -4,9 +4,41 @@
 @section('header-title', 'Laporan Peminjaman Alat')
 
 @section('content')
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+    <style>
+        @media print {
+            body {
+                overflow: visible !important;
+            }
+
+            aside,
+            header,
+            .no-print {
+                display: none !important;
+            }
+
+            main {
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            .print-report {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+            }
+
+            .print-report * {
+                color: rgb(17, 24, 39) !important;
+            }
+        }
+    </style>
+
+    <div class="print-report bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
         <!-- Header & Tombol Cetak -->
-        <div class="p-5 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="no-print p-5 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h3 class="text-lg font-bold text-gray-800">Laporan Rekapitulasi Peminjaman</h3>
             
             <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2">
@@ -17,7 +49,7 @@
             </button>
         </div>
 
-        <form action="{{ route('petugas.laporan.index') }}" method="GET" class="p-5 border-b border-gray-200 bg-white flex flex-col md:flex-row md:items-end gap-4">
+        <form action="{{ route('petugas.laporan.index') }}" method="GET" class="no-print p-5 border-b border-gray-200 bg-white flex flex-col md:flex-row md:items-end gap-4">
             <div>
                 <label for="start_date" class="block mb-1 text-sm font-semibold text-gray-700">Dari tanggal</label>
                 <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
@@ -28,10 +60,21 @@
                 <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
                     class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
+            <div>
+                <label for="status" class="block mb-1 text-sm font-semibold text-gray-700">Status</label>
+                <select id="status" name="status"
+                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Semua status</option>
+                    <option value="diajukan" {{ $status === 'diajukan' ? 'selected' : '' }}>Diajukan</option>
+                    <option value="dipinjam" {{ $status === 'dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                    <option value="dikembalikan" {{ $status === 'dikembalikan' ? 'selected' : '' }}>Dikembalikan</option>
+                    <option value="telat" {{ $status === 'telat' ? 'selected' : '' }}>Telat</option>
+                </select>
+            </div>
             <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-lg transition">
                 Tampilkan
             </button>
-            @if($startDate || $endDate)
+            @if($startDate || $endDate || $status)
                 <a href="{{ route('petugas.laporan.index') }}" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition">
                     Reset
                 </a>

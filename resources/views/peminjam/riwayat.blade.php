@@ -6,7 +6,7 @@
 @section('content')
     <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         <div class="flex flex-col gap-4 border-b border-gray-200 bg-gray-50 p-5 md:flex-row md:items-center md:justify-between">
-            <h1 class="text-lg font-bold text-gray-800">Riwayat Peminjaman</h1>
+            <h1 class="text-lg font-bold text-gray-800"> Riwayat Peminjaman</h1>
             <form action="{{ route('peminjam.riwayat') }}" method="GET" class="flex w-full md:w-80">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari riwayat peminjaman..."
                     class="w-full rounded-l-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -31,6 +31,7 @@
                         <th class="border border-gray-200 px-4 py-3">Rencana Kembali</th>
                         <th class="border border-gray-200 px-4 py-3">Alat Dipinjam</th>
                         <th class="border border-gray-200 px-4 py-3">Status</th>
+                        <th class="border border-gray-200 px-4 py-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,6 +46,13 @@
                                         <li>{{ $detail->alat->nama_alat ?? 'Alat' }} <span class="text-gray-500">({{ $detail->jumlah }} pcs)</span></li>
                                     @endforeach
                                 </ul>
+                                @if($item->status == 'dipinjam')
+                                    <a href="{{ route('peminjam.pengembalian', $item->id) }}" class="btn btn-sm btn-primary">
+                                        Kembalikan Alat
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="border border-gray-200 px-4 py-3">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold
