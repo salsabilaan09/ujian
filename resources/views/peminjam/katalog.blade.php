@@ -39,6 +39,20 @@
                             <th class="px-4 py-3 font-semibold">Jumlah Pinjam</th>
                         </tr>
                     </thead>
+
+                <button type="submit" 
+                        class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 text-sm font-semibold rounded-lg shadow-sm transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md">
+                    Cari
+                </button>
+                
+                <!-- Tombol Reset (Interaktif) -->
+                @if(request('search'))
+                    <a href="{{ route('admin.user.index') }}" 
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 text-sm font-semibold rounded-lg shadow-sm transition-all duration-200 hover:scale-105 active:scale-95">
+                        Reset
+                    </a>
+                @endif
+            </form>
                     <tbody class="divide-y divide-slate-100 text-slate-700">
                         @forelse($alats as $alat)
                             <tr class="hover:bg-slate-50/70">

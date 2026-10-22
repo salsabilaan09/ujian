@@ -10,15 +10,15 @@
             <form action="{{ route('peminjam.riwayat') }}" method="GET" class="flex w-full md:w-80">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari riwayat peminjaman..."
                     class="w-full rounded-l-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button type="submit" class="rounded-r-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-gray-900 hover:scale-105 active:scale-95 hover:shadow-md">
-                    Cari
-                </button>
-                @if(request('search'))
-                    <a href="{{ route('peminjam.riwayat') }}"
-                        class="ml-2 flex items-center rounded-lg bg-gray-300 px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-400">
-                        Reset
-                    </a>
-                @endif
+                    <button type="submit" class="rounded-r-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-gray-900 hover:scale-105 active:scale-95 hover:shadow-md">
+                        Cari
+                    </button>
+                    @if(request('search'))
+                        <a href="{{ route('peminjam.riwayat') }}"
+                            class="ml-2 flex items-center rounded-lg bg-gray-300 px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-400">
+                            Reset
+                        </a>
+                    @endif
             </form>
         </div>
 
@@ -45,8 +45,7 @@
                                     @foreach($item->detailPinjam as $detail)
                                         <li>{{ $detail->alat->nama_alat ?? 'Alat' }} <span class="text-gray-500">({{ $detail->jumlah }} pcs)</span></li>
                                     @endforeach
-                                </ul>IIII
-                                GYVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV??????????????????????????????????????????????????????????????????????????????????????????????????????
+                                </ul>
                             <td class="border border-gray-200 px-4 py-3">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold
                                     @if($item->status == 'diajukan') bg-yellow-100 text-yellow-800
